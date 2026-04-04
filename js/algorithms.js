@@ -1,160 +1,154 @@
 /**
- * Pathfinding Algorithms
- * Each algorithm takes the grid state, start node, and end node.
- * It returns an object: { visitedNodesInOrder, pathFound }
- * visitedNodesInOrder is used to animate the search.
- * pathFound contains the nodes forming the shortest path.
+ * Topological Pathfinding Algorithms
+ * Now operating on geographical graphs (Adjacency Lists)
+ * 
+ * adjList format: Map<nodeId, Array<{node: targetNodeId, dist: physicalDistance}>>
  */
 
-function getNeighbors(node, grid, numRows, numCols) {
-    const neighbors = [];
-    const { row, col } = node;
-    
-    // Order: Up, Right, Down, Left
-    if (row > 0) neighbors.push(grid[row - 1][col]);
-    if (col < numCols - 1) neighbors.push(grid[row][col + 1]);
-    if (row < numRows - 1) neighbors.push(grid[row + 1][col]);
-    if (col > 0) neighbors.push(grid[row][col - 1]);
-    
-    return neighbors.filter(n => !n.isWall);
-}
-
-function getShortestPath(endNode) {
-    const path = [];
-    let currentNode = endNode;
-    while (currentNode !== null) {
-        path.unshift(currentNode); // prepend to get start->end order
-        currentNode = currentNode.previousNode;
+function reconstructPath(cameFrom, currentId) {
+    const path = [currentId];
+    while (cameFrom.has(currentId)) {
+        currentId = cameFrom.get(currentId);
+        path.unshift(currentId);
     }
-    // Only return valid path if start node is included (i.e. length > 1)
-    if (path.length > 1 || path[0].isStart) {
-        return path;
-    }
-    return [];
+    return path;
 }
 
 /**
  * Breadth-First Search (BFS)
- * Guarantees the shortest path on unweighted grids.
+ * Unweighted shortest path (fewest intersections)
  */
-function breadthFirstSearch(grid, startNode, endNode, numRows, numCols) {
+function breadthFirstSearch(startId, endId, adjList) {
     const visitedNodesInOrder = [];
-    const queue = [startNode];
-    startNode.isVisited = true;
-    
+    const queue = [startId];
+    const visited = new Set();
+    const cameFrom = new Map();
+
+    visited.add(startId);
+
     while (queue.length > 0) {
-        const currentNode = queue.shift();
-        
-        // Skip wall nodes just in case
-        if (currentNode.isWall) continue;
-        
-        visitedNodesInOrder.push(currentNode);
-        
-        if (currentNode === endNode) {
+        const currentId = queue.shift();
+        visitedNodesInOrder.push(currentId);
+
+        if (currentId === endId) {
             return {
                 visitedNodesInOrder,
-                pathFound: getShortestPath(endNode)
+                pathFound: reconstructPath(cameFrom, currentId)
             };
         }
-        
-        const neighbors = getNeighbors(currentNode, grid, numRows, numCols);
-        for (const neighbor of neighbors) {
-            if (!neighbor.isVisited) {
-                neighbor.isVisited = true;
-                neighbor.previousNode = currentNode;
-                queue.push(neighbor);
+
+        const neighbors = adjList.get(currentId) || [];
+        for (const edge of neighbors) {
+            if (!visited.has(edge.node)) {
+                visited.add(edge.node);
+                cameFrom.set(edge.node, currentId);
+                queue.push(edge.node);
             }
         }
     }
-    
-    return { visitedNodesInOrder, pathFound: [] }; // Path not found
+
+    return { visitedNodesInOrder, pathFound: [] };
 }
 
 /**
  * Depth-First Search (DFS)
- * Does NOT guarantee shortest path. Deep search.
+ * Deep search (not guaranteed to find shortest path)
  */
-function depthFirstSearch(grid, startNode, endNode, numRows, numCols) {
+function depthFirstSearch(startId, endId, adjList) {
     const visitedNodesInOrder = [];
-    const stack = [startNode];
-    
+    const stack = [startId];
+    const visited = new Set();
+    const cameFrom = new Map();
+
     while (stack.length > 0) {
-        const currentNode = stack.pop();
+        const currentId = stack.pop();
+
+        if (visited.has(currentId)) continue;
         
-        if (currentNode.isWall || currentNode.isVisited) continue;
-        
-        currentNode.isVisited = true;
-        visitedNodesInOrder.push(currentNode);
-        
-        if (currentNode === endNode) {
+        visited.add(currentId);
+        visitedNodesInOrder.push(currentId);
+
+        if (currentId === endId) {
             return {
                 visitedNodesInOrder,
-                pathFound: getShortestPath(endNode)
+                pathFound: reconstructPath(cameFrom, currentId)
             };
         }
-        
-        const neighbors = getNeighbors(currentNode, grid, numRows, numCols);
-        // Push in reverse order so that we process Up/Right/Down/Left conventionally
-        for (let i = neighbors.length - 1; i >= 0; i--) {
-            const neighbor = neighbors[i];
-            if (!neighbor.isVisited) {
-                neighbor.previousNode = currentNode;
-                stack.push(neighbor);
+
+        const neighbors = adjList.get(currentId) || [];
+        // Push neighbors to stack
+        for (const edge of neighbors) {
+            if (!visited.has(edge.node)) {
+                // In DFS we might overwrite cameFrom if we visit a node from multiple paths, 
+                // but since we only care if it's NOT visited, we set cameFrom eagerly when pushing?
+                // Actually, standard is to set cameFrom when visiting for DFS trees.
+                // For simplicity, we just set it here if not visited
+                if (!cameFrom.has(edge.node)) {
+                    cameFrom.set(edge.node, currentId);
+                }
+                stack.push(edge.node);
             }
         }
     }
-    
+
     return { visitedNodesInOrder, pathFound: [] };
 }
 
 /**
  * Dijkstra's Algorithm
- * Guarantees shortest path. Uses distance weights (all 1 for unweighted grid).
+ * Weighted pathfinding using geographical distance between intersections
  */
-function dijkstra(grid, startNode, endNode, numRows, numCols) {
+function dijkstra(startId, endId, adjList) {
     const visitedNodesInOrder = [];
-    startNode.distance = 0;
+    const distances = new Map();
+    const cameFrom = new Map();
+    const visited = new Set();
     
-    // Get all nodes in a flat array
-    const unvisitedNodes = [];
-    for (const row of grid) {
-        for (const node of row) {
-            unvisitedNodes.push(node);
-        }
+    // Priority Queue substitute (array sort is O(N log N), fine for small graphs)
+    // A proper MinHeap would be faster, but array is acceptable for <10,000 nodes.
+    const pq = []; 
+
+    // Initialize distances
+    for (const nodeId of adjList.keys()) {
+        distances.set(nodeId, Infinity);
     }
-    
-    while (unvisitedNodes.length > 0) {
-        // Sort nodes by distance
-        unvisitedNodes.sort((a, b) => a.distance - b.distance);
-        const currentNode = unvisitedNodes.shift();
+    distances.set(startId, 0);
+    pq.push({ id: startId, dist: 0 });
+
+    while (pq.length > 0) {
+        // Sort to get node with smallest distance
+        pq.sort((a, b) => a.dist - b.dist);
+        const { id: currentId, dist: currentDist } = pq.shift();
+
+        if (visited.has(currentId)) continue;
         
-        // If the closest node is at infinity, we are trapped
-        if (currentNode.distance === Infinity) break;
-        
-        if (currentNode.isWall) continue;
-        
-        currentNode.isVisited = true;
-        visitedNodesInOrder.push(currentNode);
-        
-        if (currentNode === endNode) {
+        visited.add(currentId);
+        visitedNodesInOrder.push(currentId);
+
+        if (currentId === endId) {
             return {
                 visitedNodesInOrder,
-                pathFound: getShortestPath(endNode)
+                pathFound: reconstructPath(cameFrom, currentId)
             };
         }
-        
-        const neighbors = getNeighbors(currentNode, grid, numRows, numCols);
-        for (const neighbor of neighbors) {
-            if (!neighbor.isVisited) {
-                // In our simple grid, distance between neighbors is always 1
-                const tentativeDistance = currentNode.distance + 1;
-                if (tentativeDistance < neighbor.distance) {
-                    neighbor.distance = tentativeDistance;
-                    neighbor.previousNode = currentNode;
-                }
+
+        // We can't reach any more nodes
+        if (currentDist === Infinity) break;
+
+        const neighbors = adjList.get(currentId) || [];
+        for (const edge of neighbors) {
+            if (visited.has(edge.node)) continue;
+
+            const tentativeDistance = currentDist + edge.dist;
+            const knownDist = distances.get(edge.node);
+
+            if (tentativeDistance < knownDist) {
+                distances.set(edge.node, tentativeDistance);
+                cameFrom.set(edge.node, currentId);
+                pq.push({ id: edge.node, dist: tentativeDistance });
             }
         }
     }
-    
+
     return { visitedNodesInOrder, pathFound: [] };
 }
