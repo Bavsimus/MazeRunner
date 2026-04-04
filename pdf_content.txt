@@ -1,0 +1,46 @@
+Homework: Artificial Intelligence in Action - Applied Programming Project 
+Objective:The goal of this assignment is to bridge the gap between theoretical artificial 
+intelligence concepts and practical software development . You are required to design, 
+implement, and showcase a working software application utilizing at least one of the core 
+algorithms covered in the course materials. 
+ 
+Project Topics (Choose One): 
+1.​
+Intelligent Game Agent: Develop an AI that plays a two-player turn-based game (e.g., 
+Tic-Tac-Toe) using the Minimax algorithm. You are highly encouraged to optimize your 
+AI's computation time by implementing Alpha-Beta Pruning. 
+2.​
+Search & Pathfinding Visualizer: Create an application that solves constraints like the 
+"Rat in a Maze" problem or navigates a graph network. You must implement algorithms 
+such as Breadth-First Search (BFS), Depth-First Search (DFS), or Dijkstra's Shortest 
+Path Algorithm and demonstrate how they reach the goal. 
+3.​
+Optimization Simulation: Build a tool that attempts to find the optimal solution to a 
+complex problem avoiding local maximums. You can choose to implement Hill Climbing, 
+Simulated Annealing, or a Genetic Algorithm (simulating natural selection through 
+crossover and mutation). 
+4.​
+Probabilistic Modeling & Simulation: Develop a Monte Carlo simulation to estimate 
+complex values (such as estimating Pi) and demonstrate the Law of Large Numbers. 
+Alternatively, implement a Markov matrix-based simulation (similar to the foundation of 
+Google's PageRank) to calculate steady-state probabilities. 
+ 
+Technical Requirements: 
+●​ Working Application: Your application must be fully functional. While Python is highly 
+recommended due to its rich libraries and course examples (e.g., scipy, numpy), you 
+may use any programming language or technology stack you prefer. You can build a 
+terminal-based app, a web app, or a desktop GUI. 
+ 
+Deliverables & Submission Guidelines:You must upload the following two items to the system 
+by the deadline: 
+1.​
+Project Report ( PDF Document): Submit a comprehensive report explaining your 
+chosen problem, the mathematical/theoretical background of the algorithm you used, 
+and a brief overview of your code architecture. 
+2.​
+Demonstration Video (Max 2 Minutes): Record a screencast demonstrating your 
+working application. In this video, briefly explain how the algorithm runs in the 
+background while showing the program in action. Upload the video to a platform 
+(YouTube, Google Drive, etc.) and ensure the visibility is set to 'Unlisted' or 'Public'. 
+Submit the video link along with your report. 
+ 

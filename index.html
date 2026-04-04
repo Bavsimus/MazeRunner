@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rat in a Maze: Pathfinding Visualizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Controls -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>AI Path Visualizer</h1>
+                <p>Option 2 Applied Project</p>
+            </div>
+
+            <div class="controls-group">
+                <label for="algorithm">Select Algorithm</label>
+                <select id="algorithm" class="control-input">
+                    <option value="bfs">Breadth-First Search (BFS)</option>
+                    <option value="dfs">Depth-First Search (DFS)</option>
+                    <option value="dijkstra">Dijkstra's Algorithm</option>
+                </select>
+            </div>
+
+            <div class="controls-group">
+                <label for="speed">Animation Speed</label>
+                <input type="range" id="speed" min="1" max="100" value="70" class="control-range">
+            </div>
+
+            <div class="controls-group">
+                <p class="instruction">Draw logic: <span>Hold left-click to draw/erase walls. Drag Start or End nodes to move them.</span></p>
+                <button id="visualizeBtn" class="primary-btn">Visualize Algorithm</button>
+            </div>
+
+            <div class="controls-group actions">
+                <button id="clearPathBtn" class="secondary-btn">Clear Search Path</button>
+                <button id="clearBoardBtn" class="secondary-btn">Clear All Walls</button>
+                <button id="generateMazeBtn" class="secondary-btn">Generate Random Maze</button>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="node start-node"></div><span>Start (Rat)</span></div>
+                <div class="legend-item"><div class="node end-node"></div><span>End (Cheese)</span></div>
+                <div class="legend-item"><div class="node wall-node"></div><span>Wall</span></div>
+                <div class="legend-item"><div class="node visited-node"></div><span>Visited</span></div>
+                <div class="legend-item"><div class="node path-node"></div><span>Shortest Path</span></div>
+            </div>
+            
+            <div id="statsPanel" class="stats-panel hidden">
+                <h3>Execution Stats</h3>
+                <p>Time: <span id="statTime">0</span> ms</p>
+                <p>Nodes Visited: <span id="statNodes">0</span></p>
+                <p>Path Length: <span id="statPath">0</span></p>
+            </div>
+        </aside>
+
+        <!-- Main Grid Area -->
+        <main class="grid-container">
+            <div id="grid" class="grid"></div>
+        </main>
+    </div>
+
+    <script src="js/algorithms.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
