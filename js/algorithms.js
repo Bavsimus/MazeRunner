@@ -18,7 +18,7 @@ function reconstructPath(cameFrom, currentId) {
  * Breadth-First Search (BFS)
  * Unweighted shortest path (fewest intersections)
  */
-function breadthFirstSearch(startId, endId, adjList) {
+export function breadthFirstSearch(startId, endId, adjList) {
     const visitedNodesInOrder = [];
     const queue = [startId];
     const visited = new Set();
@@ -54,7 +54,7 @@ function breadthFirstSearch(startId, endId, adjList) {
  * Depth-First Search (DFS)
  * Deep search (not guaranteed to find shortest path)
  */
-function depthFirstSearch(startId, endId, adjList) {
+export function depthFirstSearch(startId, endId, adjList) {
     const visitedNodesInOrder = [];
     const stack = [startId];
     const visited = new Set();
@@ -98,7 +98,7 @@ function depthFirstSearch(startId, endId, adjList) {
  * Dijkstra's Algorithm
  * Weighted pathfinding using geographical distance between intersections
  */
-function dijkstra(startId, endId, adjList) {
+export function dijkstra(startId, endId, adjList) {
     const visitedNodesInOrder = [];
     const distances = new Map();
     const cameFrom = new Map();

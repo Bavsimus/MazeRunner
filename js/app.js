@@ -1,3 +1,5 @@
+import { breadthFirstSearch, depthFirstSearch, dijkstra } from './algorithms.js';
+
 // App State
 let map;
 let currentStep = 1;
